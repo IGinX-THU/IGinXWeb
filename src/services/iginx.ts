@@ -65,8 +65,8 @@ const associationQuery = (params) => {
 };
 
 // 查询脚本
-const fetchScripts = () => {
-  return request.get('/api/iginx/scripts');
+const fetchScripts = (params) => {
+  return request.post('/api/iginx/scripts/query', params);
 };
 
 // 新增脚本
@@ -75,18 +75,14 @@ const uploadScript = (uploadType, values) => {
   formData.append('name', values.name);
   formData.append('description', values.description || '');
   formData.append('type', uploadType);
+  formData.append('className', values.className);
+  formData.append('functionName', values.functionName);
 
   if (uploadType === 'UDF') {
     formData.append('udfType', values.udfType);
-    formData.append('className', values.className);
-    formData.append('functionName', values.functionName);
-    formData.append('file', values.file[0].originFileObj);
+    formData.append('udfScript', values.file[0].originFileObj);
   } else {
-    // Transform类型
-    values.scripts.forEach((file) => {
-      formData.append('scripts', file.originFileObj);
-    });
-    formData.append('configFile', values.configFile[0].originFileObj);
+    formData.append('transformScript', values.scripts[0].originFileObj);
   }
 
   return request.post('/api/iginx/scripts', formData, {
@@ -106,6 +102,14 @@ const handleSave = (currentScriptId, updatedScript) => {
   return request.put('/api/iginx/scripts/' + currentScriptId, updatedScript);
 };
 
+const handleRegister = (script) => {
+  return request.put('/api/iginx/scripts/register/' + script.id, script);
+};
+
+const handleDelete = (scriptId) => {
+  return request.delete('/api/iginx/scripts/delete/' + scriptId);
+};
+
 const handleExecute = (script) => {
   return request.post('/api/iginx/scripts/execute', script);
 };
@@ -122,4 +126,6 @@ export default {
   handleEdit,
   handleSave,
   handleExecute,
+  handleRegister,
+  handleDelete,
 };
